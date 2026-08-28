@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1e293b #0a0f1e;
+  }
+  *::-webkit-scrollbar { width: 6px; }
+  *::-webkit-scrollbar-track { background: #0a0f1e; }
+  *::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-[#060a13] text-slate-200 antialiased;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-[#0c1222] border border-[#162037] rounded-xl;
+  }
+  .card-elevated {
+    @apply bg-[#0f1729] border border-[#1a2a4a] rounded-xl shadow-lg shadow-black/20;
+  }
+  .badge {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase;
+  }
+  .badge-critical { @apply bg-red-500/15 text-red-400 border border-red-500/20; }
+  .badge-high { @apply bg-orange-500/15 text-orange-400 border border-orange-500/20; }
+  .badge-medium { @apply bg-amber-500/15 text-amber-400 border border-amber-500/20; }
+  .badge-low { @apply bg-cyan-500/15 text-cyan-400 border border-cyan-500/20; }
+  .badge-info { @apply bg-blue-500/15 text-blue-400 border border-blue-500/20; }
+
+  .terminal {
+    @apply bg-[#040810] rounded-lg border border-[#162037] font-mono text-sm overflow-x-auto;
+  }
+  .terminal-header {
+    @apply flex items-center gap-2 px-4 py-2.5 bg-[#0a1020] border-b border-[#162037] text-xs text-slate-500;
+  }
+  .terminal-body {
+    @apply p-4 text-green-400/90 leading-relaxed whitespace-pre-wrap;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg shadow-blue-600/20;
+  }
+  .btn-ghost {
+    @apply bg-transparent hover:bg-slate-800 text-slate-300 font-medium py-2 px-4 rounded-lg transition-colors border border-slate-700/50;
+  }
+
+  .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+  .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
