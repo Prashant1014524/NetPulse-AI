@@ -1,0 +1,342 @@
+{
+  "NS-001": {
+    "root_cause": "Interface Fa0/1 on SW1 is administratively shut down ('shutdown' command present), disconnecting all VLAN 10 hosts from the router.",
+    "confidence": "high",
+    "evidence": ["Fa0/1 is administratively down, line protocol is down", "shutdown"],
+    "osi_layer": "Layer 1 — Physical",
+    "concept": "Interface Administrative Shutdown",
+    "next_command": "show interfaces status",
+    "fix_steps": ["conf t", "interface FastEthernet0/1", "no shutdown", "end"],
+    "verification_steps": "show interfaces fa0/1 status"
+  },
+  "NS-002": {
+    "root_cause": "PC-B has incorrect default gateway 192.168.20.2 instead of the correct router subinterface 192.168.20.1.",
+    "confidence": "high",
+    "evidence": ["Gateway: 192.168.20.2", "ping 192.168.20.1 — Reply (gateway reachable)", "ping 192.168.10.5 — Request timeout (cross-VLAN fails)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "Default Gateway Misconfiguration",
+    "next_command": "show ip route",
+    "fix_steps": ["On PC-B: set default gateway to 192.168.20.1"],
+    "verification_steps": "ping 192.168.10.5 from PC-B"
+  },
+  "NS-003": {
+    "root_cause": "SW2 Fa0/3 is in VLAN 1 (default) instead of VLAN 30. DHCP requests from the new host do not reach the VLAN 30 DHCP scope.",
+    "confidence": "high",
+    "evidence": ["Access Mode VLAN: 1 (default)", "ip helper-address 192.168.10.100"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "VLAN Assignment",
+    "next_command": "show vlan brief",
+    "fix_steps": ["conf t", "interface FastEthernet0/3", "switchport access vlan 30", "end"],
+    "verification_steps": "show interfaces fa0/3 switchport"
+  },
+  "NS-004": {
+    "root_cause": "VLAN 40 is not in the allowed VLAN list on the trunk link between SW1 and SW2. Only VLANs 10, 20, 30 are permitted.",
+    "confidence": "high",
+    "evidence": ["Vlans allowed on trunk: 10,20,30"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "Trunk VLAN Allowance",
+    "next_command": "show interfaces trunk",
+    "fix_steps": ["conf t", "interface GigabitEthernet0/1", "switchport trunk allowed vlan add 40", "end"],
+    "verification_steps": "show interfaces trunk"
+  },
+  "NS-005": {
+    "root_cause": "DHCP helper-address on the VLAN 50 interface is misconfigured, pointing to the VLAN 10 scope. Hosts receive 192.168.10.x addresses instead of 192.168.50.x.",
+    "confidence": "high",
+    "evidence": ["IP address: 192.168.10.25 leased to VLAN 50 host", "VLAN50-POOL Leased addresses: 0"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "DHCP Relay / Scope Mismatch",
+    "next_command": "show running-config interface Fa0/0.50",
+    "fix_steps": ["Verify and correct the ip helper-address on the VLAN 50 subinterface"],
+    "verification_steps": "show ip dhcp binding"
+  },
+  "NS-006": {
+    "root_cause": "ACL OUTBOUND line 20 denies UDP port 53, blocking all DNS queries from the LAN even though ICMP to 8.8.8.8 works.",
+    "confidence": "high",
+    "evidence": ["20 deny udp any any eq 53", "ping 8.8.8.8 — Reply", "nslookup — DNS request timed out"],
+    "osi_layer": "Layer 7 — Application",
+    "concept": "ACL Blocking DNS",
+    "next_command": "show access-lists",
+    "fix_steps": ["conf t", "ip access-list extended OUTBOUND", "no 20", "end"],
+    "verification_steps": "nslookup www.google.com"
+  },
+  "NS-007": {
+    "root_cause": "NAT-ACL uses wildcard mask 0.0.0.254 instead of 0.0.0.255, excluding odd/even hosts including 192.168.1.50 from NAT translation.",
+    "confidence": "high",
+    "evidence": ["10 permit ip 192.168.1.0 0.0.0.254 any", "show ip nat translations (no entry for .50)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "NAT/PAT ACL Wildcard",
+    "next_command": "show access-lists",
+    "fix_steps": ["conf t", "access-list NAT-ACL permit ip 192.168.1.0 0.0.0.255 any", "end"],
+    "verification_steps": "show ip nat translations"
+  },
+  "NS-008": {
+    "root_cause": "R2 has only a default route via R1, but R1 does not have a return route to forward R2's traffic to 10.2.0.0/16 properly.",
+    "confidence": "medium",
+    "evidence": ["S 0.0.0.0/0 via 10.1.1.1", "ping 10.2.0.1 — U.U.U (unreachable)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "Missing Route / Static Route",
+    "next_command": "show ip route on R1",
+    "fix_steps": ["On R1: ip route 10.2.0.0 255.255.0.0 Serial0/1 (or appropriate next hop)"],
+    "verification_steps": "ping 10.2.0.1 from R2"
+  },
+  "NS-009": {
+    "root_cause": "OSPF area mismatch: R3 is in Area 0 and R1 is in Area 1. OSPF neighbors cannot form adjacency across different areas.",
+    "confidence": "high",
+    "evidence": ["R3 Area 0", "R1 Area 1", "show ip ospf neighbor — (no output)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "OSPF Area Mismatch",
+    "next_command": "show ip ospf interface",
+    "fix_steps": ["On R1: router ospf 1, network 172.16.0.0 0.0.0.3 area 0"],
+    "verification_steps": "show ip ospf neighbor"
+  },
+  "NS-010": {
+    "root_cause": "GUEST-ACL line 30 correctly denies guest VLAN traffic to corporate subnets (192.168.0.0/16). This is intended guest isolation, not a fault.",
+    "confidence": "high",
+    "evidence": ["30 deny ip 192.168.100.0 0.0.0.255 192.168.0.0 0.0.255.255"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "Guest Isolation ACL",
+    "next_command": "show access-lists",
+    "fix_steps": ["No fix needed — this is expected security behavior for guest isolation"],
+    "verification_steps": "Confirm guest policy requirements with network admin"
+  },
+  "NS-011": {
+    "root_cause": "Duplicate IP address 192.168.10.20 — two different MAC addresses (0011.2233.0101 and 0055.6677.8899) are claiming the same IP, causing ARP conflict.",
+    "confidence": "high",
+    "evidence": ["192.168.10.20 — 0011.2233.0101", "192.168.10.20 — 0055.6677.8899", "Statically configured"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "Duplicate IP Address",
+    "next_command": "show ip arp",
+    "fix_steps": ["Change PC-X static IP to an unused address or add DHCP reservation"],
+    "verification_steps": "show ip arp | include 192.168.10.20"
+  },
+  "NS-012": {
+    "root_cause": "DHCP pool exhausted — all 254 addresses are leased. New hosts cannot receive an IP.",
+    "confidence": "high",
+    "evidence": ["Total addresses: 254", "Leased addresses: 254", "Total bindings: 254"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "DHCP Pool Exhaustion",
+    "next_command": "show ip dhcp binding",
+    "fix_steps": ["clear ip dhcp binding *", "Reduce lease time or expand subnet"],
+    "verification_steps": "show ip dhcp pool"
+  },
+  "NS-013": {
+    "root_cause": "Static route on R2 points to unreachable next hop 10.1.1.9 instead of correct 10.1.1.1.",
+    "confidence": "high",
+    "evidence": ["S 172.16.5.0/24 via 10.1.1.9", "ping 10.1.1.9 — U.U.U.U.U", "show ip arp | include 10.1.1.9 — (no output)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "Wrong Next Hop",
+    "next_command": "show ip route",
+    "fix_steps": ["conf t", "no ip route 172.16.5.0 255.255.255.0 10.1.1.9", "ip route 172.16.5.0 255.255.255.0 10.1.1.1", "end"],
+    "verification_steps": "ping 172.16.5.1"
+  },
+  "NS-014": {
+    "root_cause": "Native VLAN mismatch between SW1 (native VLAN 1) and SW3 (native VLAN 99) on the trunk link.",
+    "confidence": "high",
+    "evidence": ["SW1 Native vlan: 1", "SW3 Native vlan: 99", "CDP-4-NATIVE_VLAN_MISMATCH"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "Native VLAN Mismatch",
+    "next_command": "show interfaces trunk",
+    "fix_steps": ["On SW1: interface Gi0/2, switchport trunk native vlan 99", "Or on SW3: interface Gi0/1, switchport trunk native vlan 1"],
+    "verification_steps": "show interfaces trunk"
+  },
+  "NS-015": {
+    "root_cause": "NAT ACL (access-list 1) permits 10.0.0.0/8 but LAN uses 192.168.1.0/24. No NAT translation occurs for LAN traffic.",
+    "confidence": "high",
+    "evidence": ["Standard IP access list 1: permit 10.0.0.0 0.255.255.255", "show ip nat translations — (empty)", "LAN: 192.168.1.0/24"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "NAT ACL Mismatch",
+    "next_command": "show access-lists",
+    "fix_steps": ["conf t", "access-list 1 permit 192.168.1.0 0.0.0.255", "end"],
+    "verification_steps": "show ip nat translations"
+  },
+  "NS-016": {
+    "root_cause": "WLC RADIUS server IP is 192.168.5.51 but actual RADIUS server is at 192.168.5.50. Wrong IP prevents authentication.",
+    "confidence": "high",
+    "evidence": ["Server Address: 192.168.5.51", "Status: Timeout"],
+    "osi_layer": "Layer 7 — Application",
+    "concept": "RADIUS Authentication Failure",
+    "next_command": "show radius summary",
+    "fix_steps": ["Update WLC RADIUS server IP from 192.168.5.51 to 192.168.5.50"],
+    "verification_steps": "show radius summary"
+  },
+  "NS-017": {
+    "root_cause": "ACL SERVER-IN denies TCP ports 80 and 443 inbound on VLAN 20, blocking all HTTP/HTTPS access to servers.",
+    "confidence": "high",
+    "evidence": ["20 deny tcp any any eq 80", "30 deny tcp any any eq 443", "ip access-group SERVER-IN in"],
+    "osi_layer": "Layer 4 — Transport",
+    "concept": "ACL Blocking HTTP/HTTPS",
+    "next_command": "show access-lists",
+    "fix_steps": ["conf t", "ip access-list extended SERVER-IN", "no 20", "no 30", "20 permit tcp any any eq 80", "30 permit tcp any any eq 443", "end"],
+    "verification_steps": "Test HTTP connection to 192.168.2.10"
+  },
+  "NS-018": {
+    "root_cause": "BGP MD5 authentication mismatch: R1 has password CISCO123 but R2 has no password configured.",
+    "confidence": "high",
+    "evidence": ["R1: neighbor 10.0.0.2 password CISCO123", "R2: no password configured", "State: Idle"],
+    "osi_layer": "Layer 4 — Transport",
+    "concept": "BGP Authentication Mismatch",
+    "next_command": "show bgp neighbors",
+    "fix_steps": ["On R2: router bgp 65002, neighbor 10.0.0.1 password CISCO123"],
+    "verification_steps": "show bgp summary"
+  },
+  "NS-019": {
+    "root_cause": "Both SW1 and SW2 claim to be the STP root bridge for VLAN 1, indicating a BPDU storm or misconfiguration causing a forwarding loop.",
+    "confidence": "high",
+    "evidence": ["SW1: This bridge is the root", "SW2: This bridge is the root", "Input errors: 1200/sec"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "STP Root Bridge Conflict",
+    "next_command": "show spanning-tree detail",
+    "fix_steps": ["Set explicit root bridge priority: spanning-tree vlan 1 priority 4096 on SW1"],
+    "verification_steps": "show spanning-tree vlan 1"
+  },
+  "NS-020": {
+    "root_cause": "Uplink Fa0/24 between SW4 and SW5 is configured as access port in VLAN 70 instead of trunk, preventing proper inter-switch VLAN communication.",
+    "confidence": "medium",
+    "evidence": ["SW4 Fa0/24: Administrative Mode: static access", "SW5 Fa0/24: Administrative Mode: static access"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "Access vs Trunk Port Misconfiguration",
+    "next_command": "show interfaces trunk",
+    "fix_steps": ["On both switches: interface fa0/24, switchport mode trunk"],
+    "verification_steps": "show interfaces trunk"
+  },
+  "NS-021": {
+    "root_cause": "Voice VLAN is not configured on SW6 Fa0/1 — shows 'Voice VLAN: none'. VoIP phones cannot obtain voice VLAN DHCP lease.",
+    "confidence": "high",
+    "evidence": ["Voice VLAN: none", "VOICE-POOL Leased addresses: 0"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "Voice VLAN Not Configured",
+    "next_command": "show interfaces fa0/1 switchport",
+    "fix_steps": ["conf t", "interface fa0/1", "switchport voice vlan 80", "end"],
+    "verification_steps": "show interfaces fa0/1 switchport"
+  },
+  "NS-022": {
+    "root_cause": "Interface Gi0/1 on SW7 is flapping — repeated up/down transitions indicate a physical layer issue (bad cable, SFP, or duplex mismatch).",
+    "confidence": "high",
+    "evidence": ["GigabitEthernet0/1 is up, line protocol is down", "LINEPROTO-5-UPDOWN: changed state to down/up repeatedly"],
+    "osi_layer": "Layer 1 — Physical",
+    "concept": "Interface Flapping",
+    "next_command": "show interfaces gi0/1 counters errors",
+    "fix_steps": ["Replace cable or SFP module", "Check duplex/speed settings on both ends"],
+    "verification_steps": "show interfaces gi0/1"
+  },
+  "NS-023": {
+    "root_cause": "Firewall ACL BRANCH-TO-DMZ only permits ports 443 and 80. Port 8443 is denied by the implicit deny rule.",
+    "confidence": "high",
+    "evidence": ["permit tcp ... eq 443", "permit tcp ... eq 80", "deny ip any any log", "DENY tcp 10.10.0.12 -> 10.20.0.50:8443"],
+    "osi_layer": "Layer 4 — Transport",
+    "concept": "Firewall Port Not Permitted",
+    "next_command": "show access-list BRANCH-TO-DMZ",
+    "fix_steps": ["Add: permit tcp 10.10.0.0 0.0.0.255 host 10.20.0.50 eq 8443 (before the deny)"],
+    "verification_steps": "Test connection to 10.20.0.50:8443 from branch"
+  },
+  "NS-024": {
+    "root_cause": "EIGRP AS number mismatch: R3 uses AS 200, R4 uses AS 100. EIGRP will not form neighbor adjacency.",
+    "confidence": "high",
+    "evidence": ["R3: router eigrp 200", "R4: router eigrp 100", "show ip eigrp neighbors — (no output)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "EIGRP AS Mismatch",
+    "next_command": "show ip eigrp neighbors",
+    "fix_steps": ["On R3: no router eigrp 200, router eigrp 100, network 172.16.1.0 0.0.0.3"],
+    "verification_steps": "show ip eigrp neighbors"
+  },
+  "NS-025": {
+    "root_cause": "DHCP server service on Windows Server is stopped. Hosts fall back to APIPA (169.254.x.x) addressing.",
+    "confidence": "high",
+    "evidence": ["IP: 169.254.12.45", "DHCPServer Status: Stopped", "netstat -an | findstr :67 — (no output)"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "DHCP Server Down",
+    "next_command": "Get-Service -Name DHCPServer",
+    "fix_steps": ["Start-Service -Name DHCPServer", "Set-Service -Name DHCPServer -StartupType Automatic"],
+    "verification_steps": "Get-Service -Name DHCPServer"
+  },
+  "NS-026": {
+    "root_cause": "Internal DNS server's interface line protocol is down, making it unreachable even though internet connectivity works.",
+    "confidence": "high",
+    "evidence": ["nslookup — Request timeout", "ping 8.8.8.8 — Reply", "FastEthernet0/0 is up, line protocol is down"],
+    "osi_layer": "Layer 1 — Physical",
+    "concept": "DNS Server Unreachable",
+    "next_command": "show interfaces fa0/0",
+    "fix_steps": ["Check physical cable on DNS server interface", "Verify duplex/speed settings"],
+    "verification_steps": "show interfaces fa0/0"
+  },
+  "NS-027": {
+    "root_cause": "ISAKMP lifetime mismatch: R1 has 1800 seconds and R2 has 3600 seconds. Tunnel renegotiates every 30 minutes at the shorter lifetime.",
+    "confidence": "high",
+    "evidence": ["R1 lifetime: 1800", "R2 lifetime: 3600"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "IPSec Lifetime Mismatch",
+    "next_command": "show crypto isakmp policy",
+    "fix_steps": ["On R2: crypto isakmp policy 10, lifetime 1800 (match R1)"],
+    "verification_steps": "show crypto isakmp sa"
+  },
+  "NS-028": {
+    "root_cause": "VTP synchronization issue: SW8 revision number (8) is lower than SW1 (15). VLAN 90 has not propagated to SW8.",
+    "confidence": "medium",
+    "evidence": ["SW1 Configuration Revision: 15", "SW8 Configuration Revision: 8", "show vlan brief | include 90 — (no output)"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "VTP Propagation Failure",
+    "next_command": "show vtp status",
+    "fix_steps": ["Verify trunk link between SW1 and SW8", "Check VTP password matches on both sides"],
+    "verification_steps": "show vtp status on SW8"
+  },
+  "NS-029": {
+    "root_cause": "Port security violation on Fa0/5: maximum 1 MAC allowed but 3+ MACs detected from an unmanaged switch, causing error-disable.",
+    "confidence": "high",
+    "evidence": ["Maximum MAC Addresses: 1", "Total MAC Addresses: 3", "Port Status: Secure-shutdown", "PSECURE_VIOLATION"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "Port Security Violation",
+    "next_command": "show port-security interface fa0/5",
+    "fix_steps": ["Remove unmanaged switch", "shutdown", "no shutdown (to recover from err-disable)"],
+    "verification_steps": "show port-security interface fa0/5"
+  },
+  "NS-030": {
+    "root_cause": "VoIP phones are not marking traffic with DSCP EF — the QoS VOICE class shows 0 matched packets. The policy exists but upstream marking is absent.",
+    "confidence": "high",
+    "evidence": ["Class-map: VOICE — Packets: 0 Bytes: 0", "VOICE-ACL not found"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "QoS DSCP Marking Failure",
+    "next_command": "show policy-map interface",
+    "fix_steps": ["Configure VoIP phones or upstream switch to mark voice traffic with DSCP EF"],
+    "verification_steps": "show policy-map interface serial 0/0"
+  },
+  "NS-031": {
+    "root_cause": "ACL VLAN10-OUT applied outbound on VLAN 10 only permits intra-VLAN traffic. Return traffic from server VLAN 50 is denied.",
+    "confidence": "high",
+    "evidence": ["10 permit ip 192.168.10.0 0.0.0.255 192.168.10.0 0.0.0.255", "20 deny ip any any", "ip access-group VLAN10-OUT out"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "ACL Return Traffic Blocked",
+    "next_command": "show access-lists",
+    "fix_steps": ["Add permit for server VLAN: permit ip 192.168.5.0 0.0.0.255 192.168.10.0 0.0.0.255 (before deny)"],
+    "verification_steps": "ping 192.168.5.200 from client"
+  },
+  "NS-032": {
+    "root_cause": "HSRP preempt is not configured on R2. When R1's tracked object fails (priority drops to 90), R2 (priority 100) won't automatically take over.",
+    "confidence": "high",
+    "evidence": ["R1: P (preempt configured)", "R2: no P flag (no preempt)", "R1 track decrement 20"],
+    "osi_layer": "Layer 3 — Network",
+    "concept": "HSRP Preempt Not Configured",
+    "next_command": "show standby brief",
+    "fix_steps": ["On R2: interface vlan 10, standby 1 preempt"],
+    "verification_steps": "show standby brief"
+  },
+  "NS-033": {
+    "root_cause": "DHCP pool for VLAN 100 only provides external DNS (8.8.8.8). Internal DNS server 10.0.0.53 is not included.",
+    "confidence": "high",
+    "evidence": ["DNS Servers: 8.8.8.8 (only)", "dns-server 8.8.8.8 (pool config)", "nslookup internal.corp.local — Non-existent domain"],
+    "osi_layer": "Layer 7 — Application",
+    "concept": "DNS Split-Horizon Misconfiguration",
+    "next_command": "show ip dhcp pool",
+    "fix_steps": ["conf t", "ip dhcp pool VLAN100-POOL", "dns-server 10.0.0.53 8.8.8.8", "end"],
+    "verification_steps": "nslookup internal.corp.local"
+  },
+  "NS-034": {
+    "root_cause": "Uplink Gi0/1 on SW10 is configured as access port in VLAN 1 instead of trunk. All VLANs 10-50 are blocked.",
+    "confidence": "high",
+    "evidence": ["switchport mode access", "switchport access vlan 1", "show interfaces trunk — (no ports in trunking mode)", "VLANs show act/lshut"],
+    "osi_layer": "Layer 2 — Data Link",
+    "concept": "Trunk Port Misconfigured as Access",
+    "next_command": "show interfaces trunk",
+    "fix_steps": ["conf t", "interface GigabitEthernet0/1", "switchport mode trunk", "switchport trunk allowed vlan 10,20,30,40,50", "end"],
+    "verification_steps": "show interfaces trunk"
+  }
+}

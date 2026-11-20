@@ -13,7 +13,7 @@ import evaluationRoutes from './routes/evaluation';
 import auditRoutes from './routes/audit';
 
 const app = express();
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = Number(process.env.PORT) || 5001;
 
 // Middleware
 app.use(cors());
