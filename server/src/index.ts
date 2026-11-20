@@ -80,7 +80,7 @@ if (fs.existsSync(clientDist)) {
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🚀 NetSage AI Server running on http://localhost:${PORT}`);
+  console.log(`\n🚀 NetPulse AI Server running on http://localhost:${PORT}`);
   console.log(`   AI Mode: ${process.env.GROQ_API_KEY ? 'Groq API' : 'Demo (no API key)'}`);
   console.log(`   DB Mode: ${app.locals.dbConnected ? 'MongoDB' : 'In-Memory'}\n`);
 });

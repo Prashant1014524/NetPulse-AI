@@ -1,7 +1,7 @@
 {
-  "name": "netsage-ai",
-  "version": "1.0.0",
-  "description": "NetSage AI — Evidence-Based Network Troubleshooting Assistant",
+  "name": "netpulse-ai",
+  "version": "2.0.0",
+  "description": "NetPulse AI — Autonomous Evidence-Based Network Diagnostics Platform",
   "scripts": {
     "install-all": "npm install --prefix server && npm install --prefix client",
     "dev:server": "npm run dev --prefix server",

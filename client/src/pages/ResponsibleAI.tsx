@@ -144,8 +144,8 @@ const ResponsibleAI: React.FC = () => {
             <ShieldCheck className="w-5 h-5 text-violet-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Responsible AI &amp; Human Oversight</h1>
-            <p className="text-sm text-slate-500">Audit Trail &amp; Human-in-the-Loop Governance</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Responsible AI &amp; Governance</h1>
+            <p className="text-sm text-slate-400">NetPulse Audit Trail &amp; Human-in-the-Loop Oversight</p>
           </div>
         </div>
 

@@ -43,8 +43,8 @@ const Evaluation: React.FC = () => {
             <BarChart3 className="w-5 h-5 text-blue-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Evaluation &amp; System Analytics</h1>
-            <p className="text-sm text-slate-500">Benchmark Performance &amp; Dataset Metrics</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">System Evaluation &amp; Benchmarks</h1>
+            <p className="text-sm text-slate-400">NetPulse AI Diagnostic Metrics &amp; Safety Performance</p>
           </div>
         </div>
       </div>

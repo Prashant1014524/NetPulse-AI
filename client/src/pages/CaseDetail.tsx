@@ -49,8 +49,13 @@ const CaseDetail: React.FC = () => {
     try {
       const result = await diagnoseCase(id!);
       setDiagnosis(result);
-      const reviewed: Record<string, string> = JSON.parse(localStorage.getItem('netsage_reviews') || '{}');
-      if (!reviewed[id!]) { reviewed[id!] = 'diagnosed'; localStorage.setItem('netsage_reviews', JSON.stringify(reviewed)); }
+      const reviewed: Record<string, string> = JSON.parse(
+        localStorage.getItem('netpulse_reviews') || localStorage.getItem('netsage_reviews') || '{}'
+      );
+      if (!reviewed[id!]) {
+        reviewed[id!] = 'diagnosed';
+        localStorage.setItem('netpulse_reviews', JSON.stringify(reviewed));
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -71,9 +76,11 @@ const CaseDetail: React.FC = () => {
         correctedDiagnosis: reviewDecision === 'corrected' ? correctedText : '',
         aiConfidence: diagnosis?.confidence,
       });
-      const reviewed: Record<string, string> = JSON.parse(localStorage.getItem('netsage_reviews') || '{}');
+      const reviewed: Record<string, string> = JSON.parse(
+        localStorage.getItem('netpulse_reviews') || localStorage.getItem('netsage_reviews') || '{}'
+      );
       reviewed[id!] = reviewDecision;
-      localStorage.setItem('netsage_reviews', JSON.stringify(reviewed));
+      localStorage.setItem('netpulse_reviews', JSON.stringify(reviewed));
       setReviewSaved(true);
     } catch (err) { console.error(err); }
     finally { setSubmittingReview(false); }

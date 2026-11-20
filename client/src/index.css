@@ -5,15 +5,19 @@
 @layer base {
   * {
     scrollbar-width: thin;
-    scrollbar-color: #1e293b #0a0f1e;
+    scrollbar-color: #1e293b #060a13;
   }
   *::-webkit-scrollbar { width: 6px; }
-  *::-webkit-scrollbar-track { background: #0a0f1e; }
+  *::-webkit-scrollbar-track { background: #060a13; }
   *::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
 
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    @apply bg-[#060a13] text-slate-200 antialiased;
+    @apply bg-[#050811] text-slate-200 antialiased;
+    background-image: 
+      radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.04) 0%, transparent 40%);
+    background-attachment: fixed;
   }
 
   code, pre, .font-mono {
@@ -23,52 +27,53 @@
 
 @layer components {
   .card {
-    @apply bg-[#0c1222] border border-[#162037] rounded-xl;
+    @apply bg-[#0a0f1d] border border-[#142036] rounded-xl;
   }
   .card-elevated {
-    @apply bg-[#0f1729] border border-[#1a2a4a] rounded-xl shadow-lg shadow-black/20;
+    @apply bg-[#0c1324]/90 backdrop-blur-md border border-[#1a2b48] rounded-xl shadow-xl shadow-black/30;
   }
   .badge {
     @apply px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase;
   }
-  .badge-critical { @apply bg-red-500/15 text-red-400 border border-red-500/20; }
-  .badge-high { @apply bg-orange-500/15 text-orange-400 border border-orange-500/20; }
-  .badge-medium { @apply bg-amber-500/15 text-amber-400 border border-amber-500/20; }
-  .badge-low { @apply bg-cyan-500/15 text-cyan-400 border border-cyan-500/20; }
-  .badge-info { @apply bg-blue-500/15 text-blue-400 border border-blue-500/20; }
+  .badge-critical { @apply bg-rose-500/15 text-rose-400 border border-rose-500/25; }
+  .badge-high { @apply bg-amber-500/15 text-amber-400 border border-amber-500/25; }
+  .badge-medium { @apply bg-yellow-500/15 text-yellow-300 border border-yellow-500/25; }
+  .badge-low { @apply bg-cyan-500/15 text-cyan-400 border border-cyan-500/25; }
+  .badge-info { @apply bg-blue-500/15 text-blue-400 border border-blue-500/25; }
 
   .terminal {
-    @apply bg-[#040810] rounded-lg border border-[#162037] font-mono text-sm overflow-x-auto;
+    @apply bg-[#02050c] rounded-xl border border-[#162540] font-mono text-sm overflow-x-auto shadow-2xl;
   }
   .terminal-header {
-    @apply flex items-center gap-2 px-4 py-2.5 bg-[#0a1020] border-b border-[#162037] text-xs text-slate-500;
+    @apply flex items-center justify-between px-4 py-2.5 bg-[#080e1e] border-b border-[#162540] text-xs text-slate-400 font-sans;
   }
   .terminal-body {
-    @apply p-4 text-green-400/90 leading-relaxed whitespace-pre-wrap;
+    @apply p-4 text-emerald-400/90 leading-relaxed whitespace-pre-wrap font-mono select-text;
   }
 
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg shadow-blue-600/20;
+    @apply bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-[0.98];
   }
   .btn-ghost {
-    @apply bg-transparent hover:bg-slate-800 text-slate-300 font-medium py-2 px-4 rounded-lg transition-colors border border-slate-700/50;
+    @apply bg-[#0a1122] hover:bg-[#121e38] text-slate-300 font-medium py-2 px-4 rounded-lg transition-colors border border-[#1a2b48];
   }
 
-  .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
-  .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
+  .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.2); }
+  .glow-blue { box-shadow: 0 0 25px rgba(59, 130, 246, 0.2); }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
 }
 .animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out forwards;
+  animation: fadeInUp 0.35s ease-out forwards;
 }
-.animate-pulse-dot {
-  animation: pulse-dot 1.5s ease-in-out infinite;
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
 }

@@ -52,7 +52,9 @@ const Cases: React.FC = () => {
     getCases().then(data => { setCases(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  const reviewed: Record<string, string> = JSON.parse(localStorage.getItem('netsage_reviews') || '{}');
+  const reviewed: Record<string, string> = JSON.parse(
+    localStorage.getItem('netpulse_reviews') || localStorage.getItem('netsage_reviews') || '{}'
+  );
 
   const getStatus = (caseId: string): string => {
     if (reviewed[caseId]) return reviewed[caseId];
@@ -88,8 +90,10 @@ const Cases: React.FC = () => {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Troubleshooting Cases</h1>
-          <p className="text-sm text-slate-500 mt-1">{totalCasesText(filtered.length, cases.length)}</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Enterprise Incident Scenarios</h1>
+          <p className="text-sm text-slate-400 mt-1">
+            NetPulse Diagnostic Library • {totalCasesText(filtered.length, cases.length)}
+          </p>
         </div>
       </div>
 
