@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
+import Case from '../models/Case';
 import { NetworkCase } from '../types/index';
 
 // In-memory fallback store
@@ -27,7 +28,6 @@ inMemoryCases = loadCasesFromFile();
 export async function getAllCases(req: Request, res: Response): Promise<void> {
   try {
     if (req.app.locals.dbConnected) {
-      const Case = require('../models/Case');
       let cases = await Case.find().sort({ caseId: 1 });
       if (cases.length === 0) {
         // Seed from file if DB is empty
@@ -55,7 +55,6 @@ export async function getCaseById(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
     if (req.app.locals.dbConnected) {
-      const Case = require('../models/Case');
       const c = await Case.findOne({ caseId: id });
       if (c) {
         res.json(c);

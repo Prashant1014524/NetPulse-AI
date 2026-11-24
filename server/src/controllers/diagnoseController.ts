@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
+import Case from '../models/Case';
+import DiagnosisModel from '../models/Diagnosis';
 import { runRuleChecker } from '../services/ruleChecker';
 import { getDiagnosis } from '../services/groqService';
 import { NetworkCase, CheckerFinding, Diagnosis } from '../types/index';
@@ -18,7 +20,6 @@ export async function diagnoseCase(req: Request, res: Response): Promise<void> {
     // Get the case data
     let caseData: NetworkCase | null = null;
     if (req.app.locals.dbConnected) {
-      const Case = require('../models/Case');
       caseData = await Case.findOne({ caseId: id });
     }
     if (!caseData) {
@@ -48,7 +49,6 @@ export async function diagnoseCase(req: Request, res: Response): Promise<void> {
     let savedDiagnosis: Diagnosis = diagnosis;
     if (req.app.locals.dbConnected) {
       try {
-        const DiagnosisModel = require('../models/Diagnosis');
         const doc = new DiagnosisModel(diagnosis);
         const saved = await doc.save();
         savedDiagnosis = saved.toObject() as Diagnosis;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { getCaseById, diagnoseCase, submitReview } from '../services/api';
 import type { NetworkCase, Diagnosis, Confidence } from '../types';
 import {
@@ -19,6 +19,8 @@ const LOADING_STEPS = [
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const caseListSearch = state?.caseListSearch;
   const [caseData, setCaseData] = useState<NetworkCase | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
@@ -98,7 +100,8 @@ const CaseDetail: React.FC = () => {
   return (
     <div className="p-8 max-w-5xl mx-auto pb-24">
       {/* Back nav */}
-      <Link to="/cases" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-400 transition-colors mb-6">
+      <Link to={{ pathname: '/cases', search: typeof caseListSearch === 'string' ? caseListSearch : '' }}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-400 transition-colors mb-6">
         <ArrowLeft className="w-4 h-4" /> Back to Cases
       </Link>
 
@@ -156,6 +159,13 @@ const CaseDetail: React.FC = () => {
           <div className="terminal-body">{caseData.showOutput}</div>
         </div>
       </div>
+
+      {caseData.expectedFault && (
+        <details key={caseData.caseId} className="card-elevated p-5 mb-6">
+          <summary className="cursor-pointer text-sm font-medium text-slate-300">Reveal expected fault</summary>
+          <p className="mt-3 text-sm leading-relaxed text-slate-400">{caseData.expectedFault}</p>
+        </details>
+      )}
 
       {/* Diagnose Button */}
       {!diagnosis && !isDiagnosing && (

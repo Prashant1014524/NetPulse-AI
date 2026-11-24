@@ -11,6 +11,7 @@ import reviewsRoutes from './routes/reviews';
 import dashboardRoutes from './routes/dashboard';
 import evaluationRoutes from './routes/evaluation';
 import auditRoutes from './routes/audit';
+import troubleshootRoutes from './routes/troubleshoot';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5001;
@@ -56,6 +57,7 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/evaluation', evaluationRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/troubleshoot', troubleshootRoutes);
 
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {

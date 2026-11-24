@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getDashboardStats } from '../services/api';
 import type { DashboardStats } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import {
   Activity, Brain, ShieldCheck, CheckCircle, AlertTriangle, Network,
-  FileSearch, Cpu, UserCheck, Scale, ArrowRight, Zap, Radio, Layers
+  FileSearch, Cpu, UserCheck, Scale, ArrowRight, Zap, Radio, Layers, Terminal
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -114,16 +115,26 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Hero Header */}
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">NetPulse AI</h1>
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-            Enterprise v2.0
-          </span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">NetPulse AI</h1>
+            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+              Enterprise v2.0
+            </span>
+          </div>
+          <p className="text-slate-300 text-sm mt-1">
+            Autonomous Cisco Network Troubleshooting, Deterministic Diagnostics &amp; Human-in-the-Loop Validation
+          </p>
         </div>
-        <p className="text-slate-300 text-sm mt-1">
-          Autonomous Cisco Network Troubleshooting, Deterministic Diagnostics &amp; Human-in-the-Loop Validation
-        </p>
+        <Link
+          to="/troubleshooter"
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 flex items-center gap-2 shrink-0 transition-all active:scale-95"
+        >
+          <Terminal className="w-4 h-4" />
+          <span>Live Log Troubleshooter</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* Metric Cards Grid */}

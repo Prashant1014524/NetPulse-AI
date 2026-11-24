@@ -10,6 +10,7 @@ import type {
 
 import fallbackCases from '../data/cases.json';
 import fallbackDiagnoses from '../data/demoDiagnoses.json';
+import { analyzeCiscoLog } from './logAnalyzer';
 
 const API_BASE_URL = '/api';
 
@@ -175,6 +176,18 @@ export const getEvaluation = async (): Promise<EvaluationData> => {
     categoryBreakdown: {},
     severityBreakdown: {},
   };
+};
+
+export const troubleshootLog = async (log: string, symptom?: string): Promise<Diagnosis> => {
+  try {
+    const response = await api.post<Diagnosis>('/troubleshoot', { log, symptom });
+    if (response.data && response.data.root_cause) {
+      return response.data;
+    }
+  } catch (err) {
+    console.warn('[NetPulse AI] Troubleshoot API offline, executing local diagnostic engine:', err);
+  }
+  return analyzeCiscoLog(log, symptom);
 };
 
 export default api;

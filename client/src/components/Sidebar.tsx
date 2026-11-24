@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Activity, ShieldCheck, BarChart3, ChevronRight, Zap, Database } from 'lucide-react';
+import { LayoutDashboard, Activity, ShieldCheck, BarChart3, ChevronRight, Zap, Database, Terminal, FlaskConical } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface NavItem {
@@ -13,6 +13,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: 'NOC Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Incident Cases', path: '/cases', icon: Activity, badge: '34' },
+  { name: 'Live Troubleshooter', path: '/troubleshooter', icon: Terminal, badge: 'AI' },
+  { name: 'Fix Approval Lab', path: '/lab', icon: FlaskConical, badge: 'LAB' },
   { name: 'Responsible AI', path: '/responsible-ai', icon: ShieldCheck },
   { name: 'System Evaluation', path: '/evaluation', icon: BarChart3 },
 ];

@@ -6,50 +6,33 @@
 
 ## 🌐 Overview
 
-**NetPulse AI** is an intelligent enterprise network troubleshooting platform designed to diagnose complex Cisco networking incidents using device telemetry, topology awareness, raw CLI command evidence, deterministic rule validation, and LLM-assisted reasoning — keeping network engineers firmly in the loop with responsible AI governance.
-
-Built with a high-performance **TypeScript** stack, **Redis** caching tier, and a **deterministic Python rule engine**, NetPulse AI accelerates MTTR (Mean Time to Resolution) from hours to seconds while preventing configuration hallucinations.
+**NetPulse AI** is a Cisco network troubleshooting app. It analyzes CLI output from bundled practice cases or logs you paste into the Live Troubleshooter. A diagnosis can include a likely cause, supporting evidence, suggested commands, and a verification step.
 
 ---
 
 ## ⚡ Core Capabilities
 
-- **Hybrid Diagnostic Architecture**: Combines deterministic Python networking rules (20+ constraints) with Groq LLaMA 3.1 LLM reasoning for 100% precision.
-- **Sub-Millisecond Redis Caching**: Multi-tiered cache layer caching expensive LLM inference results and repetitive rule scans.
+- **Case Diagnosis** — Runs Python rules and uses Groq when configured, with bundled demo diagnoses available without a key.
+- **Optional Redis Caching** — Caches case rule findings and diagnoses when Redis is available.
 - **Evidence-Based Cisco Analysis**: Correlates raw outputs from `show ip route`, `show vlan brief`, `show ip ospf neighbor`, `show interfaces`, `show access-lists`, and `show ip nat translations`.
 - **Human-in-the-Loop (HITL) Oversight**: Engineer validation workflow supporting **Approve**, **Correct**, and **Reject** decisions before executing any changes.
-- **Responsible AI Audit Trail**: Immutable logging system tracking engineer overrides and correction rationale for continuous model alignment and safety auditing.
-- **34 Real-World Incident Scenarios**: Production-grade test cases covering Layer 1 (Physical) to Layer 7 (Application/Security), including OSPF, BGP, VLANs, ACLs, NAT/PAT, and RADIUS.
-- **Deterministic Fix Synthesis**: Generates exact, copy-pasteable Cisco IOS configuration commands to remediate faults.
+- **Review History** — Records engineer decisions and correction notes. MongoDB can persist server-side records between restarts.
+- **34 Practice Scenarios** — Browse by category, severity, and local review status. Bookmark a filtered list and reveal the expected fault after reading the evidence.
+- **Live Troubleshooter** — Analyzes pasted logs with Groq when available or pattern-based matching on the server or in the browser.
+- **Fix Approval Lab** — Demonstrates a full engineer-approved remediation workflow against three isolated simulated faults. Commands change simulator state only. The lab does not connect to a router.
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-React 18 + Vite (TypeScript & Tailwind CSS)
-                   │
-                   ▼ (HTTP / REST)
-       Node.js / Express (TypeScript)
-                   │
-         ┌─────────┴─────────┐
-         ▼                   ▼
-   Redis Cache Tier     MongoDB / In-Memory Store
-   (1-hr Diagnosis TTL) (Fallback Resilience)
-         │
-         ▼
- Python Rule Checker (checker.py)
-   (Deterministic Regex Constraints)
-         │
-         ▼
-   Groq API / LLaMA 3.1
-   (Evidence-Grounded AI Inference)
-         │
-         ▼
- Human Engineer Review (Approve / Correct / Reject)
-         │
-         ▼
- Responsible AI Audit Log
+React + Vite → Express API
+  Practice case → Python rule checker → Groq or bundled demo diagnosis
+  Pasted log    → Groq or server-side log matching
+  Case review   → MongoDB or in-memory history
+
+  Redis can cache practice-case rule findings and diagnoses.
+  The browser has bundled cases and local log matching if the API is unavailable.
 ```
 
 ---
@@ -60,9 +43,9 @@ React 18 + Vite (TypeScript & Tailwind CSS)
 |---|---|
 | **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Recharts, Lucide React, Axios |
 | **Backend API** | Node.js, Express.js (TypeScript), ts-node, Mongoose |
-| **Caching Tier** | Redis (`ioredis`) with automatic in-memory fallback |
+| **Caching Tier** | Optional Redis (`ioredis`) |
 | **Diagnostic Engine** | Python 3 (`checker.py` deterministic analyzer) |
-| **AI Inference** | Groq API / LLaMA 3.1 70B structured output |
+| **AI Inference** | Optional Groq API with a configurable model |
 | **Database** | MongoDB with seamless in-memory fallback |
 
 ---
@@ -82,18 +65,20 @@ git clone https://github.com/Prashant1014524/netsage-ai.git
 cd netsage-ai
 
 # 2. Install dependencies (root, backend, and frontend)
+npm install
 npm run install-all
 ```
 
 ### Environment Configuration
-Copy `.env.example` to `.env`:
+For demo mode, skip environment configuration. To configure optional services, copy `.env.example` to `server/.env`. Keep the API port at `5001` to match the Vite proxy.
+
 ```env
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb://localhost:27017/netsage
 REDIS_URL=redis://localhost:6379
-GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY=
 ```
-*(Note: NetPulse AI includes high-fidelity pre-compiled demo mode and in-memory storage, running out-of-the-box even without external API keys or live databases!)*
+With a Groq key configured, the server can send case evidence and pasted logs to Groq for analysis. Without MongoDB, server-side review history is kept in memory for the current process.
 
 ### Running the Application
 
@@ -102,9 +87,13 @@ GROQ_API_KEY=your_groq_api_key_here
 npm run dev
 
 # Or start individually:
-npm run dev:server    # Backend API on http://localhost:5000
+npm run dev:server    # Backend API on http://localhost:5001
 npm run dev:client    # Vite frontend on http://localhost:3000
 ```
+
+Open `http://localhost:3000/cases/NS-001`. Read the symptom and device evidence, then expand **Reveal expected fault** to check your answer. Select **Run AI Diagnosis** to get a diagnosis and record a review. For a log-based walkthrough, open **Live Troubleshooter** and try the **Interface Admin Down** preset.
+
+To demonstrate a supervised change, open **Fix Approval Lab**, choose a fault, review the evidence and listed commands, then approve the simulated fix. The verification result and activity trail show the simulated outcome. This teaching workflow does not deploy device configurations.
 
 ### Building for Production
 
@@ -117,10 +106,7 @@ npm run build
 
 ## 🛡️ Responsible AI & Safety
 
-Enterprise network automation demands zero-hallucination guarantees. NetPulse AI enforces:
-1. **Advisory by Default**: AI diagnostics are strictly advisory; commands are never autonomously deployed to live hardware.
-2. **Deterministic Pre-flight**: Known configuration rules are validated deterministically *prior* to LLM reasoning.
-3. **Immutable Human Audit Trail**: Every override or correction is persisted to the audit dataset for governance and telemetry.
+The app displays command suggestions for human review. For library cases, the Python checker provides rule findings alongside the diagnosis. The evaluation page summarizes agreement with reviewed diagnoses. Confidence labels and agreement rates do not establish diagnostic accuracy.
 
 ---
 
